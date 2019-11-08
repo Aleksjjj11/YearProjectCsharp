@@ -1,0 +1,11 @@
+/home/alexey/Документы/SemestreProject/SemestreProject/bin/Debug/netcoreapp2.2/SemestreProject.deps.json
+/home/alexey/Документы/SemestreProject/SemestreProject/bin/Debug/netcoreapp2.2/SemestreProject.runtimeconfig.json
+/home/alexey/Документы/SemestreProject/SemestreProject/bin/Debug/netcoreapp2.2/SemestreProject.runtimeconfig.dev.json
+/home/alexey/Документы/SemestreProject/SemestreProject/bin/Debug/netcoreapp2.2/SemestreProject.dll
+/home/alexey/Документы/SemestreProject/SemestreProject/bin/Debug/netcoreapp2.2/SemestreProject.pdb
+/home/alexey/Документы/SemestreProject/SemestreProject/obj/Debug/netcoreapp2.2/SemestreProject.csprojAssemblyReference.cache
+/home/alexey/Документы/SemestreProject/SemestreProject/obj/Debug/netcoreapp2.2/SemestreProject.csproj.CoreCompileInputs.cache
+/home/alexey/Документы/SemestreProject/SemestreProject/obj/Debug/netcoreapp2.2/SemestreProject.AssemblyInfoInputs.cache
+/home/alexey/Документы/SemestreProject/SemestreProject/obj/Debug/netcoreapp2.2/SemestreProject.AssemblyInfo.cs
+/home/alexey/Документы/SemestreProject/SemestreProject/obj/Debug/netcoreapp2.2/SemestreProject.dll
+/home/alexey/Документы/SemestreProject/SemestreProject/obj/Debug/netcoreapp2.2/SemestreProject.pdb
