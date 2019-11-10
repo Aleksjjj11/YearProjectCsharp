@@ -10,10 +10,12 @@ namespace SemestreProject.Snake
             _random = new Random();
         }
         
-        public void NewPosition(int height, int width)
+        public void NewPosition(GameField gameField)
         {
-            posX = _random.Next(0, width - 1);
-            posY = _random.Next(0, height - 1);
+            int posX = _random.Next(0, gameField.GetWidth() - 1);
+            int posY = _random.Next(0, gameField.GetHeight() - 1);
+
+            cell = gameField.GetCell(posX, posY);
         }
     }
 }

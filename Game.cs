@@ -40,6 +40,7 @@ namespace SemestreProject
                 case ConsoleKey.D1:
                 {
                     StartGame(snake, fruit, gameField);
+                    Play(snake, fruit, gameField);
                     break;
                 }
                 case ConsoleKey.D2:
@@ -51,7 +52,7 @@ namespace SemestreProject
                 }
                 case ConsoleKey.D3:
                 {
-                    ShowAllScoreTable();
+                    ShowScoreTable(false);
                     Console.WriteLine("Для продолжения нажмите любую клавишу");
                     Console.ReadKey();
                     Menu(snake, fruit, gameField);
@@ -59,7 +60,7 @@ namespace SemestreProject
                 }
                 case ConsoleKey.D4:
                 {
-                    ShowUserScoreTable();
+                    ShowScoreTable(true);
                     Console.WriteLine("Для продолжения нажмите любую клавишу");
                     Console.ReadKey();
                     Menu(snake, fruit, gameField);
@@ -93,24 +94,7 @@ namespace SemestreProject
                 Console.WriteLine("Game finished! You won!! Incredible!!");
             Menu(snake, fruit, gameField);
         }
-        static void ShowAllScoreTable()
-        {
-            //Отображение таблицы рекордов
-            string fileName = "Score.txt";
-            StreamReader fileReader = new StreamReader(fileName);
-            int numLine = 0;
-            Console.WriteLine("Таблица рекордов");
-            string line;
-            while ((line = fileReader.ReadLine()) != null)
-            {
-                Console.WriteLine($"{numLine+1}. {line}");
-                numLine++;
-            }
-            if (numLine is 0) Console.WriteLine("Ещё нет рекордов");
-            fileReader.Close();
-        }
-
-        static void ShowUserScoreTable()
+        static void ShowScoreTable(bool isPerson = false)
         {
             string fileName = "Score.txt";
             StreamReader fileReader = new StreamReader(fileName);
@@ -119,7 +103,17 @@ namespace SemestreProject
             string line;
             while ((line = fileReader.ReadLine()) != null)
             {
-                if (line.Split("-")[0] == nameUser)
+                //If type of output is personal then will output only personal records
+                //else all records
+                if (isPerson)
+                {
+                    if (line.Split("-")[0] == nameUser)
+                    {
+                        Console.WriteLine($"{numLine+1}. {line}");
+                        numLine++;
+                    }    
+                }
+                else
                 {
                     Console.WriteLine($"{numLine+1}. {line}");
                     numLine++;
@@ -150,11 +144,11 @@ namespace SemestreProject
 
         static void StartGame(Snake.Snake snake, Fruit fruit, GameField gameField)
         {
-            gameField = new GameField();
-            EnterSizeField(gameField);
             snake = new Snake.Snake();
             fruit = new Fruit();
-            fruit.NewPosition(gameField.GetHeight(), gameField.GetWidth());
+            gameField = new GameField();
+            EnterSizeField(gameField);
+            fruit.NewPosition(gameField);
             gameField.AddSnake(snake);
             gameField.AddGameObject(fruit);
             

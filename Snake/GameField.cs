@@ -17,17 +17,30 @@ namespace SemestreProject.Snake
             height = heightInput < 10 ? 10 : heightInput;
             width = widthInput < 15 ? 15 : widthInput;
             fields = new Cell[height, width];
+            for (int i = 0; i < height; i++)
+                for (int j = 0; j < width; j++)
+                    fields[i,j] = new Cell(i,j);
         }
 
+        public Cell GetCell(int x, int y)
+        {
+            return fields[y, x];
+        }
         public void SetHeight(int value)
         {
             height = value;
             fields = new Cell[height, width];
+            for (int i = 0; i < height; i++)
+                for (int j = 0; j < width; j++)
+                    fields[i,j] = new Cell(i,j);
         }
         public void SetWidth(int value)
         {
             width = value;
             fields = new Cell[height, width];
+            for (int i = 0; i < height; i++)
+                for (int j = 0; j < width; j++)
+                    fields[i,j] = new Cell(i,j);
         }
         public void SetField(Cell[,] field)
         {
@@ -53,12 +66,7 @@ namespace SemestreProject.Snake
             return width;
         }
 
-        public GameObject GetObjectsInTail(int x = 0, int y = 0)
-        {
-            return fields[y,x].obj;
-        }
-
-        public void SaveInFile()
+        private void SaveInFile()
         {
             Console.Write("Введите имя для файла сохранения: ");
             string fileName = Console.ReadLine();
@@ -100,7 +108,7 @@ namespace SemestreProject.Snake
             Console.Write("Введите имя для файла для загрузки: ");
             string fileName = Console.ReadLine();
             StreamReader file = new StreamReader($"{fileName}.snk");
-            string line = "";
+            string line = null;
             line = file.ReadLine();
             if (line is null)
             {
@@ -115,12 +123,18 @@ namespace SemestreProject.Snake
             width = fileWidth;
             Console.WriteLine($"height = {height} width = {width}");
             Cell[,] fileField = new Cell[height,width];
+            int i, j;
+            for (i = 0; i < height; i++)
+                for (j = 0; j < width; j++)
+                    fileField[i,j] = new Cell(i,j);
+            
             snake.GetTail().Clear();
             //Upload score from file
             int fileScore = Convert.ToInt32(file.ReadLine());
             score = fileScore;
             int numHead = 0, numFruit = 0;
-            int i = 0, j, obj;
+            i = 0;
+            int obj;
             while (i < height)
             {
                 j = 0;
@@ -137,22 +151,20 @@ namespace SemestreProject.Snake
                         }
                         case 1: //Head
                         {
-                            snake.GetHead().SetPositionX(j);
-                            snake.GetHead().SetPositionY(i);
+                            snake.GetHead().SetCell(fileField[i,j]);
                             fileField[i, j].obj = snake.GetHead();
                             numHead++;
                             break;
                         }
                         case 2: //Tail
                         {
-                            snake.GetTail().Add(new Tail(j,i));
+                            snake.GetTail().Add(new Tail(fileField[i,j]));
                             fileField[i, j].obj = snake.GetTail().Last();
                             break;
                         }
                         case 3: //Fruit
                         {
-                            fruit.SetPositionX(j);
-                            fruit.SetPositionY(i);
+                            fruit.SetCell(fileField[i,j]);
                             fileField[i, j].obj = fruit;
                             numFruit++;
                             break;
@@ -230,7 +242,15 @@ namespace SemestreProject.Snake
 
         public void AddGameObject(GameObject gameObject)
         {
-            fields[gameObject.GetPositionY(), gameObject.GetPositionX()].obj = gameObject;
+            Console.WriteLine(gameObject.GetType().Name);
+            if (gameObject.GetCell() == null)
+            {
+                if (GetCell(0,0) == null) Console.WriteLine("NULL");
+                gameObject.SetCell(GetCell(0,0));
+                GetCell(0,0).obj = gameObject;
+                return;
+            }
+            fields[gameObject.GetCell().Y, gameObject.GetCell().X].obj = gameObject;
         }
 
         public void AddSnake(Snake snake)
@@ -246,72 +266,75 @@ namespace SemestreProject.Snake
         {
             ConsoleKeyInfo key;
             while (Console.KeyAvailable)
+            {
+                key = Console.ReadKey();
+
+                switch (key.Key)
                 {
-                    key = Console.ReadKey();
-
-                    switch (key.Key)
+                    case ConsoleKey.A:
                     {
-                        case ConsoleKey.A:
-                        {
-                            if (snake.vector is TypeVector.Right) return;
+                        if (snake.vector is TypeVector.Right) return;
                             
-                            snake.SwapVector(TypeVector.Left);
-                            snake.moveStatus = MoveStatus.Moving;
-                            break;
-                        }
-                        case ConsoleKey.W:
-                        {
-                            if (snake.vector is TypeVector.Down) return;
-
-                            snake.SwapVector(TypeVector.Up);
-                            snake.moveStatus = MoveStatus.Moving;
-                            break;
-                        }
-                        case ConsoleKey.D:
-                        {
-                            if (snake.vector is TypeVector.Left) return;
-
-                            snake.SwapVector(TypeVector.Right);
-                            snake.moveStatus = MoveStatus.Moving;
-                            break;
-                        }
-                        case ConsoleKey.S:
-                        {
-                            if (snake.vector is TypeVector.Up) return;
-
-                            snake.SwapVector(TypeVector.Down);
-                            snake.moveStatus = MoveStatus.Moving;
-                            break;
-                        }
-                        case ConsoleKey.Escape:
-                        {
-                            snake.moveStatus = MoveStatus.Stopping;
-                            break;
-                        }
-                        case ConsoleKey.R:
-                        {
-                            snake = new Snake();
-                            fields = new Cell[height, width];
-                            fruit.NewPosition(height, width);
-                            AddGameObject(fruit);
-                            score = 0;
-                            Render();
-                            break;
-                        }
-                        case ConsoleKey.F:
-                        {
-                            SaveInFile();
-                            break;
-                        }
-                        case ConsoleKey.O:
-                        {
-                            Upload(snake, fruit);
-                            Render();
-                            break;
-                        }
-                        default: break;
+                        snake.SwapVector(TypeVector.Left);
+                        snake.moveStatus = MoveStatus.Moving;
+                        break;
                     }
+                    case ConsoleKey.W:
+                    {
+                        if (snake.vector is TypeVector.Down) return;
+                        snake.SwapVector(TypeVector.Up);
+                        snake.moveStatus = MoveStatus.Moving;
+                        break;
+                    }
+                    case ConsoleKey.D:
+                    {
+                        if (snake.vector is TypeVector.Left) return;
+
+                        snake.SwapVector(TypeVector.Right);
+                        snake.moveStatus = MoveStatus.Moving;
+                        break;
+                    }
+                    case ConsoleKey.S:
+                    {
+                        if (snake.vector is TypeVector.Up) return;
+
+                        snake.SwapVector(TypeVector.Down);
+                        snake.moveStatus = MoveStatus.Moving;
+                        break;
+                    }
+                    case ConsoleKey.Escape:
+                    {
+                        snake.moveStatus = MoveStatus.Stopping;
+                        break;
+                    }
+                    case ConsoleKey.R:
+                    {
+                        snake.Reset();
+                        fields = new Cell[height, width];
+                        for (int i = 0; i < height; i++)
+                            for (int j = 0; j < width; j++)
+                                fields[i,j] = new Cell(i,j);
+                        fruit.NewPosition(this);
+                        AddGameObject(fruit);
+                        AddSnake(snake);
+                        score = 0;
+                        Render();
+                        break;
+                    }
+                    case ConsoleKey.F:
+                    {
+                        SaveInFile();
+                        break;
+                    }
+                    case ConsoleKey.O:
+                    {
+                        Upload(snake, fruit);
+                        Render();
+                        break;
+                    }
+                    default: break;
                 }
+            }
         }
 
         public bool Tick(Snake snake, Fruit fruit)
@@ -319,28 +342,26 @@ namespace SemestreProject.Snake
             Thread.Sleep(snake.speed);
             if (snake.IsObstecle(this)) return true;
 
-            fields[snake.GetHead().GetPositionY(), snake.GetHead().GetPositionX()].obj = null;
+            snake.GetHead().GetCell().obj = null;
             if (snake.GetTail().Count != 0)
             {
-                fields[snake.GetTail().Last().GetPositionY(), snake.GetTail().Last().GetPositionX()].obj = null;
+                snake.GetTail().Last().GetCell().obj = null;
             }
-            snake.Move();
+            snake.Move(this);
             AddSnake(snake);
             if (snake.IsFruit(fruit))
             {
                 score += 10;
                 if (snake.speed > 50) snake.UpSpeed();
-                if (snake.GetTail().Count is 0)
-                    snake.GetTail().Add(new Tail(snake.GetHead().GetPositionX(), snake.GetHead().GetPositionY()));
-                else
-                    snake.GetTail().Add(new Tail(snake.GetTail().Last().GetPositionX(), snake.GetTail().Last().GetPositionY()));
+                snake.GetTail().Add(snake.GetTail().Count is 0
+                    ? new Tail(snake.GetHead().GetCell())
+                    : new Tail(snake.GetTail().Last().GetCell()));
                 do
                 {
-                    fruit.NewPosition(height, width);
-                } while (GetObjectsInTail(fruit.GetPositionX(), fruit.GetPositionY()) != null);   
+                    fruit.NewPosition(this);
+                } while (fruit.GetCell().obj != null);
                 AddGameObject(fruit);
             }
-
             return false;
         }
     }

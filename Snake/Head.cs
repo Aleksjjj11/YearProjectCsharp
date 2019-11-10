@@ -4,8 +4,12 @@ namespace SemestreProject.Snake
     {
         public Head()
         {
-            posX = 0;
-            posY = 0;
+            cell = null;
+        }
+
+        public Head(Cell value)
+        {
+            cell = value;
         }
     }
 }

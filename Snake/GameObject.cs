@@ -4,28 +4,15 @@ namespace SemestreProject.Snake
 {
     public class GameObject : BaseObject
     {
-        protected int posX { get; set; }
-        protected int posY { get; set; }
+        protected Cell cell;
 
-        public int GetPositionX()
+        public void SetCell(Cell value)
         {
-            return posX;
+            cell = value;
         }
-
-        public int GetPositionY()
+        public Cell GetCell()
         {
-            return posY;
+            return cell;
         }
-
-        public void SetPositionX(int x)
-        {
-            posX = x;
-        }
-
-        public void SetPositionY(int y)
-        {
-            posY = y;
-        }
-
     }
 }

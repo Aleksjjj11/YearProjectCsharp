@@ -10,3 +10,15 @@ Polka-110
 Polka-80
 Polka-0
 Dot-30
+Cat-110
+Cat-30
+Cat-30
+Dog-80
+Dog-60
+Cat-120
+Cat-270
+Dot-10
+Cat-0
+Tasuke-50
+Cat-50
+Tasuke-20

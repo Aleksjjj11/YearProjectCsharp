@@ -11,10 +11,10 @@ namespace SemestreProject.Snake
         public int speed { get; set; }
         public MoveStatus moveStatus { get; set; }
 
-        public Snake()
+        public Snake(Cell value = null)
         {
             speed = 200;
-            head = new Head();
+            head = new Head(value);
             tails = new List<Tail>();
             vector = TypeVector.Right;
         }
@@ -35,41 +35,37 @@ namespace SemestreProject.Snake
             {
                 case TypeVector.Right:
                 {
-                    if (this.GetHead().GetPositionX() + 1 == gameField.GetWidth()) return true;
-                    if (gameField.GetObjectsInTail(this.GetHead().GetPositionX() + 1, this.GetHead().GetPositionY()) !=
-                        null &&
-                        gameField.GetObjectsInTail(this.GetHead().GetPositionX() + 1, this.GetHead().GetPositionY())
-                            .GetType().Name == "Tail")
+                    if (head.GetCell().X + 1 == gameField.GetWidth()) return true;
+                    if (gameField.GetCell(head.GetCell().X + 1, head.GetCell().Y).obj != null
+                        && gameField.GetCell(head.GetCell().X + 1, head.GetCell().Y).obj.GetType().Name ==
+                        "Tail")
                         return true;
                     break;   
                 }
                 case TypeVector.Left:
                 {
-                    if (this.GetHead().GetPositionX() == 0) return true;
-                    if (gameField.GetObjectsInTail(this.GetHead().GetPositionX() - 1, this.GetHead().GetPositionY()) !=
-                        null &&
-                        gameField.GetObjectsInTail(this.GetHead().GetPositionX() - 1, this.GetHead().GetPositionY())
-                            .GetType().Name == "Tail")
+                    if (head.GetCell().X == 0) return true;
+                    if (gameField.GetCell(head.GetCell().X - 1, head.GetCell().Y).obj != null
+                        && gameField.GetCell(head.GetCell().X - 1, head.GetCell().Y).obj.GetType().Name ==
+                        "Tail")
                         return true;
                     break;
                 }
                 case TypeVector.Up:
                 {
-                    if (this.GetHead().GetPositionY() == 0) return true;
-                    if (gameField.GetObjectsInTail(this.GetHead().GetPositionX(), this.GetHead().GetPositionY() - 1) !=
-                        null &&
-                        gameField.GetObjectsInTail(this.GetHead().GetPositionX(), this.GetHead().GetPositionY() - 1)
-                            .GetType().Name == "Tail")
+                    if (head.GetCell().Y == 0) return true;
+                    if (gameField.GetCell(head.GetCell().X, head.GetCell().Y - 1).obj != null
+                        && gameField.GetCell(head.GetCell().X, head.GetCell().Y - 1).obj.GetType().Name ==
+                        "Tail")
                         return true;
                     break;
                 }
                 case TypeVector.Down:
                 {
-                    if (this.GetHead().GetPositionY() + 1 == gameField.GetHeight()) return true;
-                    if (gameField.GetObjectsInTail(this.GetHead().GetPositionX(), this.GetHead().GetPositionY() + 1) !=
-                        null &&
-                        gameField.GetObjectsInTail(this.GetHead().GetPositionX(), this.GetHead().GetPositionY() + 1)
-                            .GetType().Name == "Tail")
+                    if (head.GetCell().Y + 1 == gameField.GetHeight()) return true;
+                    if (gameField.GetCell(head.GetCell().X, head.GetCell().Y + 1).obj != null
+                        && gameField.GetCell(head.GetCell().X, head.GetCell().Y + 1).obj.GetType().Name ==
+                        "Tail")
                         return true;
                     break;
                 }
@@ -79,7 +75,7 @@ namespace SemestreProject.Snake
 
         public bool IsFruit(Fruit fruit)
         {
-            if (this.GetHead().GetPositionX() == fruit.GetPositionX() && this.GetHead().GetPositionY() == fruit.GetPositionY())
+            if (head.GetCell() == fruit.GetCell())
                 return true;
             return false;
         }
@@ -89,46 +85,59 @@ namespace SemestreProject.Snake
             vector = typeVector;
         }
 
-        public void Move()
+        public void Move(GameField gameField)
         {
             if (moveStatus is MoveStatus.Stopping) return;
             
-            int prevX = head.GetPositionX(), prevY = head.GetPositionY();
+            Cell prevCell = head.GetCell();
             for (int i = 0; i < tails.Count; i++)
             {
-                int prev2X = tails[i].GetPositionX(), prev2Y = tails[i].GetPositionY();
-                
-                tails[i].SetPositionX(prevX);
-                tails[i].SetPositionY(prevY);
-                prevX = prev2X;
-                prevY = prev2Y;
+                Cell prev2Cell = tails[i].GetCell();
+                tails[i].SetCell(prevCell);
+                prevCell = prev2Cell;
             }
             switch (vector)
             {
                 case TypeVector.Down:
                 {
-                    this.head.SetPositionY(this.head.GetPositionY()+1);
+                    Cell oldCell = head.GetCell();
+                    head.SetCell(gameField.GetCell(oldCell.X, oldCell.Y + 1));
+                    oldCell.obj = null;
                     break;
                 }
                 case TypeVector.Left:
                 {
-                    this.head.SetPositionX(this.head.GetPositionX()-1);
+                    Cell oldCell = head.GetCell();
+                    head.SetCell(gameField.GetCell(oldCell.X - 1, oldCell.Y));
+                    oldCell.obj = null;
                     break;
                 }
                 case TypeVector.Right:
                 {
-                    this.head.SetPositionX(this.head.GetPositionX()+1);
+                    Cell oldCell = head.GetCell();
+                    head.SetCell(gameField.GetCell(oldCell.X + 1, oldCell.Y));
+                    oldCell.obj = null;
                     break;
                 }
                 case TypeVector.Up:
                 {
-                    this.head.SetPositionY(this.head.GetPositionY()-1);
+                    Cell oldCell = head.GetCell();
+                    head.SetCell(gameField.GetCell(oldCell.X, oldCell.Y - 1));
+                    oldCell.obj = null;
                     break;
                 }
             }
             
         }
 
+        public void Reset()
+        {
+            head = new Head();
+            tails = new List<Tail>();
+            speed = 200;
+            vector = TypeVector.Right;
+            moveStatus = MoveStatus.Stopping;
+        }
         public void UpSpeed()
         {
             speed = speed > 50 ? speed - 10 : 50;

@@ -2,10 +2,13 @@ namespace SemestreProject.Snake
 {
     public class Tail : GameObject
     {
-        public Tail(int x, int y)
+        public Tail()
         {
-            posX = x;
-            posY = y;
+            cell = null;
+        }
+        public Tail(Cell value)
+        {
+            cell = value;
         }
     }
 }
