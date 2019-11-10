@@ -89,9 +89,11 @@ namespace SemestreProject
             }
             SaveScore(gameField);
             if (isLose) 
-                Console.WriteLine("Game over!\nYou lose.");
+                Console.WriteLine("\nGame over!\nYou lose.");
             else
                 Console.WriteLine("Game finished! You won!! Incredible!!");
+            Console.WriteLine("Для продолжения нажмите любую клавишу");
+            Console.ReadKey();
             Menu(snake, fruit, gameField);
         }
         static void ShowScoreTable(bool isPerson = false)
