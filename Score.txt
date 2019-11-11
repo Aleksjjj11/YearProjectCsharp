@@ -26,3 +26,7 @@ Dog-300
 Tasuke-310
 Cat-130
 Roy-20
+Cat-70
+Cat-20
+Cat-10
+Test-60

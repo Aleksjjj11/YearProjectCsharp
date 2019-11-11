@@ -11,6 +11,8 @@ namespace SemestreProject.Snake
         private int width;
         private int score;
         private Cell[,] fields;
+        private String oldBuffer = " ";
+        private String newBuffer = "";
         public GameField(int heightInput = 10, int widthInput = 15)
         {
             score = 0;
@@ -195,43 +197,50 @@ namespace SemestreProject.Snake
         public void Render()
         {
             Console.Clear();
-            Console.WriteLine($"Your score {score}");
-            for (int i = 0; i < width+1; i++)
-                Console.Write("#");
-            Console.Write("\t\tEsp - Pause");
-            Console.WriteLine();
+            newBuffer = "";
+            newBuffer += $"\nYour score {score}\n";
+            for (int i = 0; i < width + 1; i++)
+            {
+                newBuffer += "#";
+            }
+            newBuffer += "\t\tEsp - Pause\n";
             for (int i = 0; i < height; i++)
             {
-                Console.Write("#");
+                newBuffer += "#"; 
                 for (int j = 0; j < width; j++)
                 {
                     if (fields[i, j].obj == null)
                     {
-                        Console.Write((" "));
+                        newBuffer += " ";
                         continue;
                         
                     }
                     if (fields[i, j].obj.GetType().Name == "Fruit")
                     {
-                        Console.Write(("$"));
+                        newBuffer += "$";
                         continue;
                     }
                     if (fields[i, j].obj.GetType().Name == "Head")
                     {
-                        Console.Write(("@"));
+                        newBuffer += "@";
                         continue;
                     }
                     if (fields[i, j].obj.GetType().Name == "Tail")
                     {
-                        Console.Write(("*"));
+                        newBuffer += "*";
                         continue;
                     }
                 }
-                Console.Write("#");
-                Console.WriteLine();
+                newBuffer += "#\n";
             }
-            for (int i = 0; i < width+1; i++)
-                Console.Write("#");
+
+            for (int i = 0; i < width + 1; i++)
+            {
+                newBuffer += "#";
+            }
+
+            oldBuffer = oldBuffer.Replace(oldBuffer, newBuffer);
+            Console.Write(oldBuffer);
         }
 
         public bool IsWin()
