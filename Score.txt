@@ -23,3 +23,6 @@ Tasuke-50
 Cat-50
 Tasuke-20
 Dog-300
+Tasuke-310
+Cat-130
+Roy-20

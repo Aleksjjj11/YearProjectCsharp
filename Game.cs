@@ -10,6 +10,7 @@ namespace SemestreProject
 
         static void Main(string[] args)
         {
+            Console.CursorVisible = false;
             Console.Write("Перед началом игры введите ваш ник: ");
             nameUser = Console.ReadLine();
             //For some reason need wrote Snake for correctly work.
@@ -34,6 +35,7 @@ namespace SemestreProject
             {
                 case ConsoleKey.D0:
                 {
+                    Console.CursorVisible = true;
                     Environment.Exit(0);
                     break;    
                 }
