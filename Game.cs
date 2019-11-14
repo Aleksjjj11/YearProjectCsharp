@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using SemestreProject.Snake;
 
@@ -6,8 +7,8 @@ namespace SemestreProject
 {
     class Game
     {
-        static private string nameUser = "Anonymous";
-
+        static string nameUser = "Anonymous";
+        static string fileScore = "Score.txt";
         static void Main(string[] args)
         {
             Console.CursorVisible = false;
@@ -75,7 +76,7 @@ namespace SemestreProject
                 }
             };
         }
-        static public void Play(Snake.Snake snake, Fruit fruit, GameField gameField)
+        static void Play(Snake.Snake snake, Fruit fruit, GameField gameField)
         {
             bool isLose = false;
             while (!gameField.IsWin() && !isLose)
@@ -100,37 +101,21 @@ namespace SemestreProject
         }
         static void ShowScoreTable(bool isPerson = false)
         {
-            string fileName = "Score.txt";
-            StreamReader fileReader = new StreamReader(fileName);
-            int numLine = 0;
-            Console.WriteLine("Ваши рекорды:");
-            string line;
-            while ((line = fileReader.ReadLine()) != null)
+            List<string> list = LoadRecords(isPerson);
+            if (list is null)
             {
-                //If type of output is personal then will output only personal records
-                //else all records
-                if (isPerson)
-                {
-                    if (line.Split("-")[0] == nameUser)
-                    {
-                        Console.WriteLine($"{numLine+1}. {line}");
-                        numLine++;
-                    }    
-                }
-                else
-                {
-                    Console.WriteLine($"{numLine+1}. {line}");
-                    numLine++;
-                }
+                Console.WriteLine("В данный момент список рекордов пуст.");
+                return;
             }
-            if (numLine is 0) Console.WriteLine("У вас ещё нет рекордов");
-            fileReader.Close();
+            foreach (string record in list)
+            {
+                Console.WriteLine(record);
+            }
         }
 
         static void SaveScore(GameField gameField)
         {
-            string fileName = "Score.txt";
-            StreamWriter fileWriter = new StreamWriter(fileName, true);
+            StreamWriter fileWriter = new StreamWriter(fileScore, true);
             fileWriter.WriteLine(nameUser + "-" + gameField.GetScore());
             fileWriter.Close();
         }
@@ -158,6 +143,34 @@ namespace SemestreProject
             
             gameField.Render();
             Play(snake, fruit, gameField);
+        }
+        static List<string> LoadRecords(bool isPerson = false)
+        {
+            List<string> result = new List<string>();
+            StreamReader fileReader = new StreamReader(fileScore);
+            int numLine = 0;
+            string line;
+            while ((line = fileReader.ReadLine()) != null)
+            {
+                if (isPerson)
+                {
+                    if (line.Split("-").Length != 2) return null;
+                    if (line.Split("-")[0] == nameUser)
+                    {
+                        result.Add(line);
+                        numLine++;
+                    }    
+                }
+                else
+                {
+                    if (line.Split("-").Length != 2) return null;
+                    result.Add(line);
+                    numLine++;
+                }
+            }
+            if (numLine is 0) return null;
+            fileReader.Close();
+            return result;
         }
     }
 }

@@ -7,20 +7,18 @@ namespace SemestreProject.Snake
 {
     public class GameField
     {
-        private int height;
-        private int width;
-        private int score;
+        private int _height;
+        private int _width;
+        private int _score;
         private Cell[,] fields;
-        private String oldBuffer = " ";
-        private String newBuffer = "";
         public GameField(int heightInput = 10, int widthInput = 15)
         {
-            score = 0;
-            height = heightInput < 10 ? 10 : heightInput;
-            width = widthInput < 15 ? 15 : widthInput;
-            fields = new Cell[height, width];
-            for (int i = 0; i < height; i++)
-                for (int j = 0; j < width; j++)
+            _score = 0;
+            _height = heightInput < 10 ? 10 : heightInput;
+            _width = widthInput < 15 ? 15 : widthInput;
+            fields = new Cell[_height, _width];
+            for (int i = 0; i < _height; i++)
+                for (int j = 0; j < _width; j++)
                     fields[i,j] = new Cell(i,j);
         }
 
@@ -30,18 +28,18 @@ namespace SemestreProject.Snake
         }
         public void SetHeight(int value)
         {
-            height = value;
-            fields = new Cell[height, width];
-            for (int i = 0; i < height; i++)
-                for (int j = 0; j < width; j++)
+            _height = value;
+            fields = new Cell[_height, _width];
+            for (int i = 0; i < _height; i++)
+                for (int j = 0; j < _width; j++)
                     fields[i,j] = new Cell(i,j);
         }
         public void SetWidth(int value)
         {
-            width = value;
-            fields = new Cell[height, width];
-            for (int i = 0; i < height; i++)
-                for (int j = 0; j < width; j++)
+            _width = value;
+            fields = new Cell[_height, _width];
+            for (int i = 0; i < _height; i++)
+                for (int j = 0; j < _width; j++)
                     fields[i,j] = new Cell(i,j);
         }
         public void SetField(Cell[,] field)
@@ -51,21 +49,21 @@ namespace SemestreProject.Snake
 
         public void SetScore(int value)
         {
-            score = value;
+            _score = value;
         }
 
         public int GetScore()
         {
-            return score;
+            return _score;
         }
         public int GetHeight()
         {
-            return height;
+            return _height;
         }
 
         public int GetWidth()
         {
-            return width;
+            return _width;
         }
 
         private void SaveInFile()
@@ -73,11 +71,11 @@ namespace SemestreProject.Snake
             Console.Write("Введите имя для файла сохранения: ");
             string fileName = Console.ReadLine();
             StreamWriter file = new StreamWriter($"{fileName}.snk");
-            file.WriteLine(height + "/" + width);
-            file.WriteLine(score);
-            for (int i = 0; i < height; i++)
+            file.WriteLine(_height + "/" + _width);
+            file.WriteLine(_score);
+            for (int i = 0; i < _height; i++)
             {
-                for (int j = 0; j < width; j++)
+                for (int j = 0; j < _width; j++)
                 {
                     if (fields[i, j].obj == null)
                     {
@@ -121,27 +119,27 @@ namespace SemestreProject.Snake
             if (lines.Length != 2) return;
             //Upload height and width from file
             int fileHeight = Convert.ToInt32(lines[0]), fileWidth = Convert.ToInt32(lines[1]);
-            height = fileHeight;
-            width = fileWidth;
-            Console.WriteLine($"height = {height} width = {width}");
-            Cell[,] fileField = new Cell[height,width];
+            _height = fileHeight;
+            _width = fileWidth;
+            Console.WriteLine($"height = {_height} width = {_width}");
+            Cell[,] fileField = new Cell[_height,_width];
             int i, j;
-            for (i = 0; i < height; i++)
-                for (j = 0; j < width; j++)
+            for (i = 0; i < _height; i++)
+                for (j = 0; j < _width; j++)
                     fileField[i,j] = new Cell(i,j);
             
             snake.GetTail().Clear();
             //Upload score from file
             int fileScore = Convert.ToInt32(file.ReadLine());
-            score = fileScore;
+            _score = fileScore;
             int numHead = 0, numFruit = 0;
             i = 0;
             int obj;
-            while (i < height)
+            while (i < _height)
             {
                 j = 0;
                 
-                while (j < width)
+                while (j < _width)
                 {
                     obj = Convert.ToInt32(file.Read()) - 48;
                     switch (obj)
@@ -187,7 +185,6 @@ namespace SemestreProject.Snake
                 Console.WriteLine($"При загрузке карты произошла ошибка head = {numHead} fruit = {numFruit}");
                 return;
             }
-            
             fields = fileField;
             file.Close();
             Console.WriteLine("Uploaded");
@@ -196,18 +193,19 @@ namespace SemestreProject.Snake
         
         public void Render()
         {
+            String oldBuffer = " ";
+            String newBuffer = "";
             Console.Clear();
-            newBuffer = "";
-            newBuffer += $"\nYour score {score}\n";
-            for (int i = 0; i < width + 1; i++)
+            newBuffer += $"\nYour score {_score}\n";
+            for (int i = 0; i < _width + 1; i++)
             {
                 newBuffer += "#";
             }
             newBuffer += "\t\tEsp - Pause\n";
-            for (int i = 0; i < height; i++)
+            for (int i = 0; i < _height; i++)
             {
                 newBuffer += "#"; 
-                for (int j = 0; j < width; j++)
+                for (int j = 0; j < _width; j++)
                 {
                     if (fields[i, j].obj == null)
                     {
@@ -234,7 +232,7 @@ namespace SemestreProject.Snake
                 newBuffer += "#\n";
             }
 
-            for (int i = 0; i < width + 1; i++)
+            for (int i = 0; i < _width + 1; i++)
             {
                 newBuffer += "#";
             }
@@ -245,20 +243,13 @@ namespace SemestreProject.Snake
 
         public bool IsWin()
         {
-            if (score >= height * width * 10) return true;
+            if (_score >= _height * _width * 10) return true;
             return false;
         }
 
         public void AddGameObject(GameObject gameObject)
         {
             Console.WriteLine(gameObject.GetType().Name);
-            if (gameObject.GetCell() == null)
-            {
-                if (GetCell(0,0) == null) Console.WriteLine("NULL");
-                gameObject.SetCell(GetCell(0,0));
-                GetCell(0,0).obj = gameObject;
-                return;
-            }
             fields[gameObject.GetCell().Y, gameObject.GetCell().X].obj = gameObject;
         }
 
@@ -319,14 +310,14 @@ namespace SemestreProject.Snake
                     case ConsoleKey.R:
                     {
                         snake.Reset();
-                        fields = new Cell[height, width];
-                        for (int i = 0; i < height; i++)
-                            for (int j = 0; j < width; j++)
+                        fields = new Cell[_height, _width];
+                        for (int i = 0; i < _height; i++)
+                            for (int j = 0; j < _width; j++)
                                 fields[i,j] = new Cell(i,j);
                         fruit.NewPosition(this);
                         AddGameObject(fruit);
                         AddSnake(snake);
-                        score = 0;
+                        _score = 0;
                         Render();
                         break;
                     }
@@ -360,7 +351,7 @@ namespace SemestreProject.Snake
             AddSnake(snake);
             if (snake.IsFruit(fruit))
             {
-                score += 10;
+                _score += 10;
                 if (snake.speed > 50) snake.UpSpeed();
                 snake.GetTail().Add(snake.GetTail().Count is 0
                     ? new Tail(snake.GetHead().GetCell())
