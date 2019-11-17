@@ -127,10 +127,11 @@ namespace SemestreProject.Snake
             Cell[,] fileField = new Cell[_height,_width];
             int i, j;
             for (i = 0; i < _height; i++)
-                for (j = 0; j < _width; j++)
-                    fileField[i,j] = new Cell(i,j);
+            for (j = 0; j < _width; j++)
+                fileField[i,j] = new Cell(i,j);
             
             snake.GetTail().Clear();
+            snake.moveStatus = MoveStatus.Stopping;
             //Upload score from file
             int fileScore = Convert.ToInt32(file.ReadLine());
             _score = fileScore;
@@ -326,15 +327,9 @@ namespace SemestreProject.Snake
                     }
                     case ConsoleKey.R:
                     {
-                        snake.Reset();
-                        _fields = new Cell[_height, _width];
-                        for (int i = 0; i < _height; i++)
-                            for (int j = 0; j < _width; j++)
-                                _fields[i,j] = new Cell(i,j);
-                        fruit.NewPosition(this);
+                        Reset(snake, fruit);
                         AddGameObject(fruit);
                         AddSnake(snake);
-                        _score = 0;
                         Render();
                         break;
                     }
@@ -349,12 +344,27 @@ namespace SemestreProject.Snake
                         Render();
                         break;
                     }
+                    case ConsoleKey.M:
+                    {
+                        Game.Menu(snake, fruit, this);
+                        break;   
+                    }
                     default: 
                         break;
                 }
             }
         }
 
+        public void Reset(Snake snake, Fruit fruit)
+        {
+            snake.Reset();
+            _fields = new Cell[_height, _width];
+            for (int i = 0; i < _height; i++)
+            for (int j = 0; j < _width; j++)
+                _fields[i,j] = new Cell(i,j);
+            fruit.NewPosition(this);
+            _score = 0;
+        }
         public bool Tick(Snake snake, Fruit fruit)
         {
             if (snake.moveStatus is MoveStatus.Stopping) return false;

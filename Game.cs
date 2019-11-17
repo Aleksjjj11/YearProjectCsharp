@@ -24,7 +24,7 @@ namespace SemestreProject
             Menu(snake, fruit, gameField);
         }
 
-        static void Menu(Snake.Snake snake, Fruit fruit, GameField gameField)
+        static public void Menu(Snake.Snake snake, Fruit fruit, GameField gameField)
         {
             Console.Clear();
             Console.WriteLine($"\n\t\t\t1) Новая игра\n" +
