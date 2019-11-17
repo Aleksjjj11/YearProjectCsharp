@@ -10,41 +10,41 @@ namespace SemestreProject.Snake
         private int _height;
         private int _width;
         private int _score;
-        private Cell[,] fields;
+        private Cell[,] _fields;
         public GameField(int heightInput = 10, int widthInput = 15)
         {
             _score = 0;
             _height = heightInput < 10 ? 10 : heightInput;
             _width = widthInput < 15 ? 15 : widthInput;
-            fields = new Cell[_height, _width];
+            _fields = new Cell[_height, _width];
             for (int i = 0; i < _height; i++)
                 for (int j = 0; j < _width; j++)
-                    fields[i,j] = new Cell(i,j);
+                    _fields[i,j] = new Cell(i,j);
         }
 
         public Cell GetCell(int x, int y)
         {
-            return fields[y, x];
+            return _fields[y, x];
         }
         public void SetHeight(int value)
         {
-            _height = value;
-            fields = new Cell[_height, _width];
+            _height = value < 10 ? 10 : value;
+            _fields = new Cell[_height, _width];
             for (int i = 0; i < _height; i++)
                 for (int j = 0; j < _width; j++)
-                    fields[i,j] = new Cell(i,j);
+                    _fields[i,j] = new Cell(i,j);
         }
         public void SetWidth(int value)
         {
-            _width = value;
-            fields = new Cell[_height, _width];
+            _width = value < 15 ? 15 : value;
+            _fields = new Cell[_height, _width];
             for (int i = 0; i < _height; i++)
                 for (int j = 0; j < _width; j++)
-                    fields[i,j] = new Cell(i,j);
+                    _fields[i,j] = new Cell(i,j);
         }
         public void SetField(Cell[,] field)
         {
-            fields = field;
+            _fields = field;
         }
 
         public void SetScore(int value)
@@ -77,24 +77,24 @@ namespace SemestreProject.Snake
             {
                 for (int j = 0; j < _width; j++)
                 {
-                    if (fields[i, j].obj == null)
+                    if (_fields[i, j].obj == null)
                     {
                         file.Write(0);
                         continue;                        
                     }
-                    if (fields[i, j].obj.GetType().Name == "Head")
+                    if (_fields[i, j].obj.GetType().Name == "Head")
                     {
                         file.Write(1);
                         continue;
                     }
 
-                    if (fields[i, j].obj.GetType().Name == "Tail")
+                    if (_fields[i, j].obj.GetType().Name == "Tail")
                     {
                         file.Write(2);
                         continue;
                     }
 
-                    if (fields[i, j].obj.GetType().Name == "Fruit")
+                    if (_fields[i, j].obj.GetType().Name == "Fruit")
                     {
                         file.Write(3);
                     }
@@ -185,7 +185,7 @@ namespace SemestreProject.Snake
                 Console.WriteLine($"При загрузке карты произошла ошибка head = {numHead} fruit = {numFruit}");
                 return;
             }
-            fields = fileField;
+            _fields = fileField;
             file.Close();
             Console.WriteLine("Uploaded");
             Console.ReadKey();
@@ -207,23 +207,23 @@ namespace SemestreProject.Snake
                 newBuffer += "#"; 
                 for (int j = 0; j < _width; j++)
                 {
-                    if (fields[i, j].obj == null)
+                    if (_fields[i, j].obj == null)
                     {
                         newBuffer += " ";
                         continue;
                         
                     }
-                    if (fields[i, j].obj.GetType().Name == "Fruit")
+                    if (_fields[i, j].obj.GetType().Name == "Fruit")
                     {
                         newBuffer += "$";
                         continue;
                     }
-                    if (fields[i, j].obj.GetType().Name == "Head")
+                    if (_fields[i, j].obj.GetType().Name == "Head")
                     {
                         newBuffer += "@";
                         continue;
                     }
-                    if (fields[i, j].obj.GetType().Name == "Tail")
+                    if (_fields[i, j].obj.GetType().Name == "Tail")
                     {
                         newBuffer += "*";
                         continue;
@@ -250,7 +250,13 @@ namespace SemestreProject.Snake
         public void AddGameObject(GameObject gameObject)
         {
             Console.WriteLine(gameObject.GetType().Name);
-            fields[gameObject.GetCell().Y, gameObject.GetCell().X].obj = gameObject;
+            if (gameObject.GetCell() is null)
+            {
+                gameObject.SetCell(_fields[0,0]);
+                _fields[0, 0].obj = gameObject;
+            }
+            
+            _fields[gameObject.GetCell().Y, gameObject.GetCell().X].obj = gameObject;
         }
 
         public void AddSnake(Snake snake)
@@ -264,12 +270,12 @@ namespace SemestreProject.Snake
 
         public void ReadAction(Snake snake, Fruit fruit)
         {
-            ConsoleKeyInfo key;
-            while (Console.KeyAvailable)
+            ConsoleKey key;
+            if (Console.KeyAvailable)
             {
-                key = Console.ReadKey();
+                key = Console.ReadKey(true).Key;
 
-                switch (key.Key)
+                switch (key)
                 {
                     case ConsoleKey.A:
                     {
@@ -310,10 +316,10 @@ namespace SemestreProject.Snake
                     case ConsoleKey.R:
                     {
                         snake.Reset();
-                        fields = new Cell[_height, _width];
+                        _fields = new Cell[_height, _width];
                         for (int i = 0; i < _height; i++)
                             for (int j = 0; j < _width; j++)
-                                fields[i,j] = new Cell(i,j);
+                                _fields[i,j] = new Cell(i,j);
                         fruit.NewPosition(this);
                         AddGameObject(fruit);
                         AddSnake(snake);
@@ -332,21 +338,21 @@ namespace SemestreProject.Snake
                         Render();
                         break;
                     }
-                    default: break;
+                    default: 
+                        break;
                 }
             }
         }
 
         public bool Tick(Snake snake, Fruit fruit)
         {
+            if (snake.moveStatus is MoveStatus.Stopping) return false;
             Thread.Sleep(snake.speed);
-            if (snake.IsObstecle(this)) return true;
-
-            snake.GetHead().GetCell().obj = null;
-            if (snake.GetTail().Count != 0)
+            if (snake.IsObstecle(this))
             {
-                snake.GetTail().Last().GetCell().obj = null;
+                return true;
             }
+            
             snake.Move(this);
             AddSnake(snake);
             if (snake.IsFruit(fruit))
@@ -362,6 +368,7 @@ namespace SemestreProject.Snake
                 } while (fruit.GetCell().obj != null);
                 AddGameObject(fruit);
             }
+            Render();
             return false;
         }
     }

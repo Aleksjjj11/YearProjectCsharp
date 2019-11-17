@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using SemestreProject.Snake;
 
 namespace SemestreProject
@@ -14,6 +15,7 @@ namespace SemestreProject
             Console.CursorVisible = false;
             Console.Write("Перед началом игры введите ваш ник: ");
             nameUser = Console.ReadLine();
+            nameUser = nameUser.Replace("-", "");
             //For some reason need wrote Snake for correctly work.
             GameField gameField = new GameField();
             Snake.Snake snake = new Snake.Snake();
@@ -81,13 +83,10 @@ namespace SemestreProject
             bool isLose = false;
             while (!gameField.IsWin() && !isLose)
             {
-                //reading action
                 gameField.ReadAction(snake, fruit);
                 if (snake.moveStatus is MoveStatus.Moving)
                 {
-                    gameField.Render();
                     isLose = gameField.Tick(snake, fruit);
-                    gameField.Render();
                 }
             }
             SaveScore(gameField);
@@ -95,8 +94,8 @@ namespace SemestreProject
                 Console.WriteLine("\nGame over!\nYou lose.");
             else
                 Console.WriteLine("Game finished! You won!! Incredible!!");
-            Console.WriteLine("Для продолжения нажмите любую клавишу");
-            Console.ReadKey();
+            Console.WriteLine("Для продолжения нажмите любую клавишу + Enter");
+            Console.ReadLine();
             Menu(snake, fruit, gameField);
         }
         static void ShowScoreTable(bool isPerson = false)
@@ -122,11 +121,21 @@ namespace SemestreProject
 
         static void EnterSizeField(GameField gameField)
         {
-            Console.WriteLine("Введите высоту поля");
             int height, width;
-            height = Convert.ToInt32(Console.ReadLine());
-            Console.WriteLine("Введите ширину поля");
-            width = Convert.ToInt32(Console.ReadLine());
+            try
+            {
+                Console.WriteLine("Введите высоту поля");
+                height = Convert.ToInt32(Console.ReadLine());
+                Console.WriteLine("Введите ширину поля");
+                width = Convert.ToInt32(Console.ReadLine());
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Некорректное значение высоты/ширины.\n" +
+                                  "Были выставлены стандартные значения 10х15.");
+                height = 10;
+                width = 15;
+            }
             gameField.SetHeight(height);
             gameField.SetWidth(width);
         }

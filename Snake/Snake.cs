@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -87,15 +88,8 @@ namespace SemestreProject.Snake
 
         public void Move(GameField gameField)
         {
-            if (moveStatus is MoveStatus.Stopping) return;
-            
+            this.GetHead().GetCell().obj = null;
             Cell prevCell = head.GetCell();
-            for (int i = 0; i < tails.Count; i++)
-            {
-                Cell prev2Cell = tails[i].GetCell();
-                tails[i].SetCell(prevCell);
-                prevCell = prev2Cell;
-            }
             switch (vector)
             {
                 case TypeVector.Down:
@@ -127,7 +121,16 @@ namespace SemestreProject.Snake
                     break;
                 }
             }
-            
+            if (this.GetTail().Count != 0)
+            {
+                this.GetTail().Last().GetCell().obj = null;
+                for (int i = 0; i < tails.Count; i++)
+                {
+                    Cell prev2Cell = tails[i].GetCell();
+                    tails[i].SetCell(prevCell);
+                    prevCell = prev2Cell;
+                }
+            }
         }
 
         public void Reset()
