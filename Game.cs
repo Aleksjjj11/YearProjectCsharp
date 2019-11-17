@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Threading;
 using SemestreProject.Snake;
@@ -50,9 +51,17 @@ namespace SemestreProject
                 }
                 case ConsoleKey.D2:
                 {
-                    gameField.Upload(snake, fruit);
-                    gameField.Render();
-                    Play(snake, fruit, gameField);
+                    if (gameField.Upload(snake, fruit))
+                    {
+                        gameField.Render();
+                        Play(snake, fruit, gameField);    
+                    }
+                    else
+                    {
+                        Console.WriteLine("Для продолжения нажмите любую клавишу");
+                        Console.ReadKey();
+                        Menu(snake, fruit, gameField);
+                    }
                     break;
                 }
                 case ConsoleKey.D3:
@@ -131,10 +140,13 @@ namespace SemestreProject
             }
             catch (Exception e)
             {
-                Console.WriteLine("Некорректное значение высоты/ширины.\n" +
+                Console.WriteLine($"Ошбика: {e.Message}\n" +
+                                  "Некорректное значение высоты/ширины.\n" +
                                   "Были выставлены стандартные значения 10х15.");
                 height = 10;
                 width = 15;
+                Console.WriteLine("Для продолжения нажмите любую клавишу + Enter");
+                Console.ReadLine();
             }
             gameField.SetHeight(height);
             gameField.SetWidth(width);

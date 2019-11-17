@@ -103,20 +103,22 @@ namespace SemestreProject.Snake
             }
             file.Close();
         }
-        public void Upload(Snake snake, Fruit fruit)
+        public bool Upload(Snake snake, Fruit fruit)
         {
             Console.Write("Введите имя для файла для загрузки: ");
             string fileName = Console.ReadLine();
-            StreamReader file = new StreamReader($"{fileName}.snk");
+            try
+            {
+                StreamReader file = new StreamReader($"{fileName}.snk");
             string line = null;
             line = file.ReadLine();
             if (line is null)
             {
                 file.Close();
-                return;
+                return false;
             }
             string[] lines = line.Split("/");
-            if (lines.Length != 2) return;
+            if (lines.Length != 2) return false;
             //Upload height and width from file
             int fileHeight = Convert.ToInt32(lines[0]), fileWidth = Convert.ToInt32(lines[1]);
             _height = fileHeight;
@@ -183,12 +185,21 @@ namespace SemestreProject.Snake
             if (numHead != 1 || numFruit != 1)
             {
                 Console.WriteLine($"При загрузке карты произошла ошибка head = {numHead} fruit = {numFruit}");
-                return;
+                return false;
             }
             _fields = fileField;
             file.Close();
             Console.WriteLine("Uploaded");
             Console.ReadKey();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Ошибка: {e.Message}");
+                Console.WriteLine("Во время загрузки произошла ошика, игра не была загружена.\n");
+                return false;
+            }
+
+            return true;
         }
         
         public void Render()
