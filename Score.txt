@@ -72,3 +72,13 @@ Cat-150
 Test-110
 Test-50
 Test-190
+PolkaDot-90
+PolkaDot-210
+PolkaDot-180
+PolkaDot-170
+Enotik-350
+Enotik-180
+Tasuke-190
+Tasuke-50
+Tasuke-320
+Tasuke-160

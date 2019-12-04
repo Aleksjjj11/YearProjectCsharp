@@ -143,7 +143,7 @@ namespace SemestreProject.Snake
         }
         public void UpSpeed()
         {
-            speed = speed > 50 ? speed - 10 : 50;
+            speed = speed > 65 ? speed - 5 : 65;
         }
     }
 }

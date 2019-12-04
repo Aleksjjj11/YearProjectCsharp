@@ -133,10 +133,18 @@ namespace SemestreProject
             int height, width;
             try
             {
-                Console.WriteLine("Введите высоту поля");
-                height = Convert.ToInt32(Console.ReadLine());
-                Console.WriteLine("Введите ширину поля");
-                width = Convert.ToInt32(Console.ReadLine());
+                Console.WriteLine("Введите высоту и ширину поля");
+                string values = Console.ReadLine();
+                if (values.Split(" ").Length > 1)
+                {
+                    height = Convert.ToInt32(values.Split(" ")[0]);
+                    width = Convert.ToInt32(values.Split(" ")[1]);
+                }
+                else
+                {
+                    height = Convert.ToInt32(values);    
+                    width = Convert.ToInt32(Console.ReadLine());
+                }
             }
             catch (Exception e)
             {
