@@ -285,37 +285,30 @@ namespace SemestreProject.Snake
             ConsoleKey key;
             if (Console.KeyAvailable)
             {
-                key = Console.ReadKey(true).Key;
+                key = Console.ReadKey(false).Key;
 
                 switch (key)
                 {
                     case ConsoleKey.A:
                     {
-                        if (snake.vector is TypeVector.Right) return;
-                            
                         snake.SwapVector(TypeVector.Left);
                         snake.moveStatus = MoveStatus.Moving;
                         break;
                     }
                     case ConsoleKey.W:
                     {
-                        if (snake.vector is TypeVector.Down) return;
                         snake.SwapVector(TypeVector.Up);
                         snake.moveStatus = MoveStatus.Moving;
                         break;
                     }
                     case ConsoleKey.D:
                     {
-                        if (snake.vector is TypeVector.Left) return;
-
                         snake.SwapVector(TypeVector.Right);
                         snake.moveStatus = MoveStatus.Moving;
                         break;
                     }
                     case ConsoleKey.S:
                     {
-                        if (snake.vector is TypeVector.Up) return;
-
                         snake.SwapVector(TypeVector.Down);
                         snake.moveStatus = MoveStatus.Moving;
                         break;
@@ -368,7 +361,25 @@ namespace SemestreProject.Snake
         public bool Tick(Snake snake, Fruit fruit)
         {
             if (snake.moveStatus is MoveStatus.Stopping) return false;
-            Thread.Sleep(snake.speed);
+            TypeVector needSave = TypeVector.Down;
+            bool need = false;
+            while (snake.StackVectors.Count > 0)
+            {
+                TypeVector vector = snake.StackVectors.Pop();
+                if (!snake != vector)
+                {
+                    snake.currentVector = vector;
+                    break;
+                }
+                need = true;
+                needSave = vector;
+            }
+            snake.StackVectors.Clear();
+
+            if (need)
+                snake.StackVectors.Push(needSave);
+            
+
             if (snake.IsObstecle(this))
             {
                 return true;
@@ -390,6 +401,7 @@ namespace SemestreProject.Snake
                 AddGameObject(fruit);
             }
             Render();
+            //snake.StackVectors.Clear();
             return false;
         }
     }

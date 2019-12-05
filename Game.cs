@@ -3,25 +3,50 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Threading;
+using System.Timers;
 using SemestreProject.Snake;
+using Timer = System.Timers.Timer;
 
 namespace SemestreProject
 {
     class Game
     {
-        static string nameUser = "Anonymous";
-        static string fileScore = "Score.txt";
+        private static string nameUser = "Anonymous";
+        private static string fileScore = "Score.txt";
+        private static Timer _tickTimer;
+        private static GameField _gameField;
+        private static Snake.Snake _snake;
+        private static Fruit _fruit;
+        private static bool _isLose;
         static void Main(string[] args)
         {
             Console.CursorVisible = false;
             Console.Write("Перед началом игры введите ваш ник: ");
             nameUser = Console.ReadLine();
-            nameUser = nameUser.Replace("-", "");
+            nameUser = nameUser?.Replace("-", "");
             //For some reason need wrote Snake for correctly work.
-            GameField gameField = new GameField();
-            Snake.Snake snake = new Snake.Snake();
-            Fruit fruit = new Fruit();
-            Menu(snake, fruit, gameField);
+            _gameField = new GameField();
+            _snake = new Snake.Snake();
+            _fruit = new Fruit();
+            Menu(_snake, _fruit, _gameField);
+        }
+
+        static void SetTimer(double interval = 200)
+        {
+            _tickTimer = new Timer(interval);
+            _tickTimer.Elapsed += TickTimerOnElapsed;
+            _tickTimer.AutoReset = true;
+            _tickTimer.Enabled = true;
+        }
+
+        private static void TickTimerOnElapsed(object sender, ElapsedEventArgs e)
+        {
+            if (_snake.moveStatus is MoveStatus.Moving)
+            {
+                _isLose = _gameField.Tick
+                (_snake, _fruit);
+            }
+            ((Timer) sender).Interval = _snake.speed;
         }
 
         static public void Menu(Snake.Snake snake, Fruit fruit, GameField gameField)
@@ -45,22 +70,22 @@ namespace SemestreProject
                 }
                 case ConsoleKey.D1:
                 {
-                    StartGame(snake, fruit, gameField);
-                    Play(snake, fruit, gameField);
+                    StartGame(_snake, _fruit, _gameField);
+                    Play(_snake, _fruit, _gameField);
                     break;
                 }
                 case ConsoleKey.D2:
                 {
-                    if (gameField.Upload(snake, fruit))
+                    if (gameField.Upload(_snake, _fruit))
                     {
                         gameField.Render();
-                        Play(snake, fruit, gameField);    
+                        Play(_snake, _fruit, _gameField);    
                     }
                     else
                     {
                         Console.WriteLine("Для продолжения нажмите любую клавишу");
                         Console.ReadKey();
-                        Menu(snake, fruit, gameField);
+                        Menu(_snake, _fruit, _gameField);
                     }
                     break;
                 }
@@ -69,7 +94,7 @@ namespace SemestreProject
                     ShowScoreTable(false);
                     Console.WriteLine("Для продолжения нажмите любую клавишу");
                     Console.ReadKey();
-                    Menu(snake, fruit, gameField);
+                    Menu(_snake, _fruit, _gameField);
                     break;
                 }
                 case ConsoleKey.D4:
@@ -77,35 +102,49 @@ namespace SemestreProject
                     ShowScoreTable(true);
                     Console.WriteLine("Для продолжения нажмите любую клавишу");
                     Console.ReadKey();
-                    Menu(snake, fruit, gameField);
+                    Menu(_snake, _fruit, _gameField);
                     break;
                 }
                 default:
                 {
-                    StartGame(snake, fruit, gameField);
+                    StartGame(_snake, _fruit, _gameField);
                     break;
                 }
             };
         }
+
+        static void TestThread()
+        {
+            while (true)
+            {
+                //Console.WriteLine("Point 1");
+                _gameField.ReadAction(_snake, _fruit);
+                //Console.WriteLine("Point 2");   
+            }
+        }
         static void Play(Snake.Snake snake, Fruit fruit, GameField gameField)
         {
-            bool isLose = false;
-            while (!gameField.IsWin() && !isLose)
+            _isLose = false;
+            //if (_tickTimer is null) _tickTimer = new Timer(snake.speed);
+            SetTimer(_snake.speed);
+            _tickTimer.Enabled = true;
+            Thread actionThread = new Thread(new ThreadStart(TestThread));
+            actionThread.IsBackground = true;
+            actionThread.Start();
+            while (!_gameField.IsWin() && !_isLose)
             {
-                gameField.ReadAction(snake, fruit);
-                if (snake.moveStatus is MoveStatus.Moving)
-                {
-                    isLose = gameField.Tick(snake, fruit);
-                }
+                
             }
-            SaveScore(gameField);
-            if (isLose) 
+            _tickTimer.Stop();
+            _tickTimer.Enabled = false;
+            SaveScore(_gameField);
+            if (_isLose) 
                 Console.WriteLine("\nGame over!\nYou lose.");
             else
                 Console.WriteLine("Game finished! You won!! Incredible!!");
             Console.WriteLine("Для продолжения нажмите любую клавишу + Enter");
             Console.ReadLine();
-            Menu(snake, fruit, gameField);
+            Menu(_snake, _fruit, _gameField);
         }
         static void ShowScoreTable(bool isPerson = false)
         {
@@ -124,7 +163,7 @@ namespace SemestreProject
         static void SaveScore(GameField gameField)
         {
             StreamWriter fileWriter = new StreamWriter(fileScore, true);
-            fileWriter.WriteLine(nameUser + "-" + gameField.GetScore());
+            fileWriter.WriteLine(nameUser + "-" + _gameField.GetScore());
             fileWriter.Close();
         }
 
@@ -135,7 +174,7 @@ namespace SemestreProject
             {
                 Console.WriteLine("Введите высоту и ширину поля");
                 string values = Console.ReadLine();
-                if (values.Split(" ").Length > 1)
+                if (values?.Split(" ").Length > 1)
                 {
                     height = Convert.ToInt32(values.Split(" ")[0]);
                     width = Convert.ToInt32(values.Split(" ")[1]);
@@ -156,22 +195,22 @@ namespace SemestreProject
                 Console.WriteLine("Для продолжения нажмите любую клавишу + Enter");
                 Console.ReadLine();
             }
-            gameField.SetHeight(height);
-            gameField.SetWidth(width);
+            _gameField.SetHeight(height);
+            _gameField.SetWidth(width);
         }
 
         static void StartGame(Snake.Snake snake, Fruit fruit, GameField gameField)
         {
-            snake = new Snake.Snake();
-            fruit = new Fruit();
-            gameField = new GameField();
-            EnterSizeField(gameField);
-            fruit.NewPosition(gameField);
-            gameField.AddSnake(snake);
-            gameField.AddGameObject(fruit);
+            _snake = new Snake.Snake();
+            _fruit = new Fruit();
+            _gameField = new GameField();
+            EnterSizeField(_gameField);
+            _fruit.NewPosition(_gameField);
+            _gameField.AddSnake(_snake);
+            _gameField.AddGameObject(_fruit);
             
-            gameField.Render();
-            Play(snake, fruit, gameField);
+            _gameField.Render();
+            Play(_snake, _fruit, _gameField);
         }
         static List<string> LoadRecords(bool isPerson = false)
         {

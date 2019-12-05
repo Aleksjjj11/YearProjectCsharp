@@ -8,7 +8,8 @@ namespace SemestreProject.Snake
     {
         private Head head;
         private List<Tail> tails;
-        public TypeVector vector { get; set; }
+        public TypeVector currentVector { get; set; }
+        public Stack<TypeVector> StackVectors = new Stack<TypeVector>();
         public int speed { get; set; }
         public MoveStatus moveStatus { get; set; }
 
@@ -17,9 +18,17 @@ namespace SemestreProject.Snake
             speed = 200;
             head = new Head(value);
             tails = new List<Tail>();
-            vector = TypeVector.Right;
+            currentVector = TypeVector.Right;
         }
 
+        public static TypeVector operator !(Snake obj)
+        {
+            if (obj.currentVector == TypeVector.Down) return TypeVector.Up;
+            if (obj.currentVector == TypeVector.Left) return TypeVector.Right;
+            if (obj.currentVector == TypeVector.Right) return TypeVector.Left;
+            if (obj.currentVector == TypeVector.Up) return TypeVector.Down;
+            return TypeVector.Down;
+        }
         public Head GetHead()
         {
             return head;
@@ -32,7 +41,7 @@ namespace SemestreProject.Snake
         //Проверяет наткнётся ли змейка на препятствие, следующим своим перемещением 
         public bool IsObstecle(GameField gameField)
         {
-            switch (vector)
+            switch (currentVector)
             {
                 case TypeVector.Right:
                 {
@@ -83,14 +92,15 @@ namespace SemestreProject.Snake
 
         public void SwapVector(TypeVector typeVector)
         {
-            vector = typeVector;
+            //newVector = typeVector;
+            StackVectors.Push(typeVector);
         }
 
         public void Move(GameField gameField)
         {
             this.GetHead().GetCell().obj = null;
             Cell prevCell = head.GetCell();
-            switch (vector)
+            switch (currentVector)
             {
                 case TypeVector.Down:
                 {
@@ -138,7 +148,7 @@ namespace SemestreProject.Snake
             head = new Head();
             tails = new List<Tail>();
             speed = 200;
-            vector = TypeVector.Right;
+            currentVector = TypeVector.Right;
             moveStatus = MoveStatus.Stopping;
         }
         public void UpSpeed()
