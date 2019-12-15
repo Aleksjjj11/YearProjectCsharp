@@ -17,5 +17,10 @@ namespace SemestreProject.Snake
 
             cell = gameField.GetCell(posX, posY);
         }
+
+        public override char GetSymbol()
+        {
+            return '$';
+        }
     }
 }

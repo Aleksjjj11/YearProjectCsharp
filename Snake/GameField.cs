@@ -42,15 +42,6 @@ namespace SemestreProject.Snake
                 for (int j = 0; j < _width; j++)
                     _fields[i,j] = new Cell(i,j);
         }
-        public void SetField(Cell[,] field)
-        {
-            _fields = field;
-        }
-
-        public void SetScore(int value)
-        {
-            _score = value;
-        }
 
         public int GetScore()
         {
@@ -66,143 +57,6 @@ namespace SemestreProject.Snake
             return _width;
         }
 
-        private void SaveInFile()
-        {
-            Console.Write("Введите имя для файла сохранения: ");
-            string fileName = Console.ReadLine();
-            StreamWriter file = new StreamWriter($"{fileName}.snk");
-            file.WriteLine(_height + "/" + _width);
-            file.WriteLine(_score);
-            for (int i = 0; i < _height; i++)
-            {
-                for (int j = 0; j < _width; j++)
-                {
-                    if (_fields[i, j].obj == null)
-                    {
-                        file.Write(0);
-                        continue;                        
-                    }
-                    if (_fields[i, j].obj.GetType().Name == "Head")
-                    {
-                        file.Write(1);
-                        continue;
-                    }
-
-                    if (_fields[i, j].obj.GetType().Name == "Tail")
-                    {
-                        file.Write(2);
-                        continue;
-                    }
-
-                    if (_fields[i, j].obj.GetType().Name == "Fruit")
-                    {
-                        file.Write(3);
-                    }
-                }
-                file.Write("\n");
-            }
-            file.Close();
-        }
-        public bool Upload(Snake snake, Fruit fruit)
-        {
-            Console.Write("Введите имя для файла для загрузки: ");
-            string fileName = Console.ReadLine();
-            try
-            {
-                StreamReader file = new StreamReader($"{fileName}.snk");
-            string line = null;
-            line = file.ReadLine();
-            if (line is null)
-            {
-                file.Close();
-                return false;
-            }
-            string[] lines = line.Split("/");
-            if (lines.Length != 2) return false;
-            //Upload height and width from file
-            int fileHeight = Convert.ToInt32(lines[0]), fileWidth = Convert.ToInt32(lines[1]);
-            _height = fileHeight;
-            _width = fileWidth;
-            Console.WriteLine($"height = {_height} width = {_width}");
-            Cell[,] fileField = new Cell[_height,_width];
-            int i, j;
-            for (i = 0; i < _height; i++)
-            for (j = 0; j < _width; j++)
-                fileField[i,j] = new Cell(i,j);
-            
-            snake.GetTail().Clear();
-            snake.moveStatus = MoveStatus.Stopping;
-            //Upload score from file
-            int fileScore = Convert.ToInt32(file.ReadLine());
-            _score = fileScore;
-            int numHead = 0, numFruit = 0;
-            i = 0;
-            int obj;
-            while (i < _height)
-            {
-                j = 0;
-                
-                while (j < _width)
-                {
-                    obj = Convert.ToInt32(file.Read()) - 48;
-                    switch (obj)
-                    {
-                        case 0:
-                        {
-                            fileField[i, j].obj = null;
-                            break;
-                        }
-                        case 1: //Head
-                        {
-                            snake.GetHead().SetCell(fileField[i,j]);
-                            fileField[i, j].obj = snake.GetHead();
-                            numHead++;
-                            break;
-                        }
-                        case 2: //Tail
-                        {
-                            snake.GetTail().Add(new Tail(fileField[i,j]));
-                            fileField[i, j].obj = snake.GetTail().Last();
-                            break;
-                        }
-                        case 3: //Fruit
-                        {
-                            fruit.SetCell(fileField[i,j]);
-                            fileField[i, j].obj = fruit;
-                            numFruit++;
-                            break;
-                        }
-                        case -38:
-                        {
-                            continue;
-                        }
-                        default:
-                            continue;
-                    }
-                    j++;
-                }
-                i++;
-            }
-            if (numHead != 1 || numFruit != 1)
-            {
-                Console.WriteLine($"При загрузке карты произошла ошибка head = {numHead} fruit = {numFruit}");
-                return false;
-            }
-            _fields = fileField;
-            file.Close();
-            Console.WriteLine("Uploaded");
-            Console.ReadKey();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"Ошибка: {e.Message}");
-                Console.WriteLine("Во время загрузки произошла ошика, игра не была загружена.\n");
-                return false;
-            }
-
-            return true;
-        }
-        
         public void Render()
         {
             String oldBuffer = " ";
@@ -225,21 +79,7 @@ namespace SemestreProject.Snake
                         continue;
                         
                     }
-                    if (_fields[i, j].obj.GetType().Name == "Fruit")
-                    {
-                        newBuffer += "$";
-                        continue;
-                    }
-                    if (_fields[i, j].obj.GetType().Name == "Head")
-                    {
-                        newBuffer += "@";
-                        continue;
-                    }
-                    if (_fields[i, j].obj.GetType().Name == "Tail")
-                    {
-                        newBuffer += "*";
-                        continue;
-                    }
+                    newBuffer += _fields[i, j].obj.GetSymbol();
                 }
                 newBuffer += "#\n";
             }
@@ -255,8 +95,7 @@ namespace SemestreProject.Snake
 
         public bool IsWin()
         {
-            if (_score >= _height * _width * 10) return true;
-            return false;
+            return _score >= (_height * _width - 1) * 10;
         }
 
         public void AddGameObject(GameObject gameObject)
@@ -326,29 +165,16 @@ namespace SemestreProject.Snake
                         Render();
                         break;
                     }
-                    case ConsoleKey.F:
-                    {
-                        SaveInFile();
-                        break;
-                    }
-                    case ConsoleKey.O:
-                    {
-                        Upload(snake, fruit);
-                        Render();
-                        break;
-                    }
                     case ConsoleKey.M:
                     {
                         Game.Menu(snake, fruit, this);
                         break;   
                     }
-                    default: 
-                        break;
                 }
             }
         }
 
-        public void Reset(Snake snake, Fruit fruit)
+        private void Reset(Snake snake, Fruit fruit)
         {
             snake.Reset();
             _fields = new Cell[_height, _width];
@@ -390,7 +216,7 @@ namespace SemestreProject.Snake
             if (snake.IsFruit(fruit))
             {
                 _score += 10;
-                if (snake.speed > 50) snake.UpSpeed();
+                if (snake.speed > 100) snake.UpSpeed();
                 snake.GetTail().Add(snake.GetTail().Count is 0
                     ? new Tail(snake.GetHead().GetCell())
                     : new Tail(snake.GetTail().Last().GetCell()));
@@ -401,7 +227,6 @@ namespace SemestreProject.Snake
                 AddGameObject(fruit);
             }
             Render();
-            //snake.StackVectors.Clear();
             return false;
         }
     }

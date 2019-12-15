@@ -10,5 +10,9 @@ namespace SemestreProject.Snake
         {
             cell = value;
         }
+        public override char GetSymbol()
+        {
+            return '*';
+        }
     }
 }

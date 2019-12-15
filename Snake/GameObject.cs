@@ -2,7 +2,7 @@ using System;
 
 namespace SemestreProject.Snake
 {
-    public class GameObject : BaseObject
+    public abstract class GameObject : BaseObject
     {
         protected Cell cell;
 
@@ -14,5 +14,7 @@ namespace SemestreProject.Snake
         {
             return cell;
         }
+
+        public abstract char GetSymbol();
     }
 }
